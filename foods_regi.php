@@ -50,6 +50,7 @@ if (isset($_REQUEST['command'])) {
 </select><br>
 キーワード1：<input type="text" name="keyword1">
 キーワード2：<input type="text" name="keyword2">
+キーワード3：<input type="text" name="keyword3">
  <input type="submit" value="登録">
 </form>
 <table>
