@@ -15,11 +15,11 @@ if (isset($_REQUEST['command'])) {
   date_default_timezone_set('Asia/Tokyo');
         $timestampdate = date("Y-m-d");
         $timestamp=date("Y-m-d H:i:s");
-        $insertfoods=$pdo->prepare("insert into foods values(null,?,?,?,?,?,?,?)");
-        $confirmfoods=$pdo->prepare("select * from foods where name=? and gram=?");
-        $confirmfoods->execute([$_REQUEST['food_name']]);
+        $insertfoods=$pdo->prepare("insert into foods values(null,?,?,?,?,?,?,?,?,?)");
+        $confirmfoods=$pdo->prepare("select * from foods where name=? and brand=? and production_area=? and gram=?");
+        $confirmfoods->execute([$_REQUEST['food_name'],$_REQUEST['brand'],$_REQUEST['production_area'],$_REQUEST['amount']]);
         if(empty($confirmfoods->fetchAll())){
-        if($insertfoods->execute([$_REQUEST['food_name'],$_REQUEST['gram'],$_REQUEST['keyword1'],$_REQUEST['keyword2'],$_REQUEST['keyword3'],$_REQUEST['tag'],$timestamp])){
+        if($insertfoods->execute([$_REQUEST['food_name'],$_REQUEST['brand'],,$_REQUEST['production_area'],,$_REQUEST['amount'],$_REQUEST['keyword1'],$_REQUEST['keyword2'],$_REQUEST['keyword3'],$_REQUEST['tag'],$timestamp])){
           ?>
           <b>成功</b>
           <?php
@@ -54,6 +54,8 @@ if (isset($_REQUEST['command'])) {
   <tr>
     <th>id</th>
     <th>食品名</th>
+    <th>ブランド</th>
+    <th>産地</th>
     <th>グラム</th>
     <th>種類</th>
     <th>キーワード1</th>
@@ -61,11 +63,13 @@ if (isset($_REQUEST['command'])) {
     <th>キーワード3</th>
   </tr>
   <?php
-  foreach ($pdo->query('select foods.id as food_id,foods.name as food_name,foods.gram,tag.name as tag_name,keyword1,keyword2,keyword3 from foods join tag on foods.tag_id=tag.id') as $row) { ?>
+  foreach ($pdo->query('select foods.id as food_id,foods.name as food_name,brand,production_area,foods.amount,tag.name as tag_name,keyword1,keyword2,keyword3 from foods join tag on foods.tag_id=tag.id') as $row) { ?>
   <tr>
     <td><?php echo $row['food_id'];?></td>
     <td><?php echo $row['food_name'];?></td>
-    <td><?php echo $row['gram'];?></td>
+    <td><?php echo $row['brand'];?></td>
+    <td><?php echo $row['production_area'];?></td>
+    <td><?php echo $row['amount'];?></td>
     <td><?php echo $row['tag_name'];?></td>
     <td><?php echo $row['keyword1'];?></td>
     <td><?php echo $row['keyword2'];?></td>
