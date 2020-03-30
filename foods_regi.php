@@ -16,10 +16,10 @@ if (isset($_REQUEST['command'])) {
         $timestampdate = date("Y-m-d");
         $timestamp=date("Y-m-d H:i:s");
         $insertfoods=$pdo->prepare("insert into foods values(null,?,?,?,?,?,?,?,?,?)");
-        $confirmfoods=$pdo->prepare("select * from foods where name=? and brand=? and production_area=? and gram=?");
+        $confirmfoods=$pdo->prepare("select * from foods where name=? and brand=? and production_area=? and amount=?");
         $confirmfoods->execute([$_REQUEST['food_name'],$_REQUEST['brand'],$_REQUEST['production_area'],$_REQUEST['amount']]);
         if(empty($confirmfoods->fetchAll())){
-        if($insertfoods->execute([$_REQUEST['food_name'],$_REQUEST['brand'],,$_REQUEST['production_area'],,$_REQUEST['amount'],$_REQUEST['keyword1'],$_REQUEST['keyword2'],$_REQUEST['keyword3'],$_REQUEST['tag'],$timestamp])){
+        if($insertfoods->execute([$_REQUEST['food_name'],$_REQUEST['brand'],$_REQUEST['production_area'],$_REQUEST['amount'],$_REQUEST['keyword1'],$_REQUEST['keyword2'],$_REQUEST['keyword3'],$_REQUEST['tag'],$timestamp])){
           ?>
           <b>成功</b>
           <?php
@@ -38,7 +38,9 @@ if (isset($_REQUEST['command'])) {
  <form action="./foods_regi.php" method="post">
    <input type="hidden" name="command" value="upload">
  食品名：<input type="text" name="food_name">
-グラム(グラム単位の肉類のみ)：<input type="text" name="gram">
+ ブランド名：<input type="text" name="brand">
+ 産地：<input type="text" name="production_area">
+量(肉の場合はgをつけた重さ。いちごの場合は小中大パック)：<input type="text" name="amount">
  <select name="tag">
      <option>種類を選択</option>
    <?php
