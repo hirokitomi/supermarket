@@ -96,8 +96,14 @@ if (isset($_REQUEST['command'])) {
 <select name="food">
 <option value="">食品を選択</option>
 <?php
-foreach ($pdo->query('select * from foods') as $row) {
-  ?><option value="<?php echo $row['id'];?>"><?php echo $row['name'];?></option>
+foreach ($pdo->query('select foods.id as food_id,item.name as item_name,foods.species,foods.production_area,foods.amount from foods join item on foods.item_id=item.id') as $row) {
+  ?><option value="<?php echo $row['food_id'];?>"><?php
+  echo $row['item_name'];?>
+  (
+  <?php if($row['species']!=''){
+    echo $row['species'].'・';}
+  echo $row['production_area'].'・'.$row['amount'];?>
+  )</option>
     <?php
 }?>
 </select><br>

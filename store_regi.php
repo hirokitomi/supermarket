@@ -16,10 +16,9 @@ if (isset($_REQUEST['command'])) {
         $timestampdate = date("Y-m-d");
         $timestamp=date("Y-m-d H:i:s");
         $insertstore=$pdo->prepare("insert into store values(null,?,?,?,?,?,?,?,?)");
-        $confirmstore=$pdo->prepare("select * from chain where name=? and chain_id=?");
+        $confirmstore=$pdo->prepare("select * from store where name=? and chain_id=?");
         $confirmstore->execute([$_REQUEST['store_name'],$_REQUEST['chain']]);
         if(empty($confirmstore->fetchAll())){
-          print($_REQUEST['chain']);
         if($insertstore->execute([$_REQUEST['chain'],$_REQUEST['store_name'],$_REQUEST['address'],$_REQUEST['business_hours'],$_REQUEST['access'],$_REQUEST['payment'],$_REQUEST['point_system'],$timestamp])){
           ?>
           <b>成功</b>
@@ -32,7 +31,7 @@ if (isset($_REQUEST['command'])) {
         }
         }
         else{
-          print('すでにあります');
+          echo 'すでにあります';
         }
       }
  ?>

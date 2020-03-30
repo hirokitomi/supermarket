@@ -28,11 +28,11 @@
           if($_GET['search']==""){
           echo 'タグ指定なし';
         }else{
-          echo '検索：'.$_GET['search'];
+          //echo '検索：'.$_GET['search'];
         }
       }
         else{
-          echo 'タグ：'.$_GET['tag'];
+          //echo 'タグ：'.$_GET['tag'];
         }
       }
 
@@ -43,10 +43,10 @@
        <option value="">種類を選択</option>
      <?php
       foreach ($pdo->query('select * from tag') as $row) {?>
-     <option value="<?php echo $row['id'];?>"><?php echo $row['name'];?></option>
+     <option value="<?php echo $row['id'];?>" <?php if($_GET['tag']==$row['id']) echo 'selected';?>><?php echo $row['name'];?></option>
    <?php } ?>
   </select>
-食品検索：<input type="text" name="search">
+食品検索：<input type="text" name="search" value="<?php echo $_GET['search'];?>">
  <input type="submit" value="検索">
 </form>
 <table>
@@ -58,55 +58,58 @@
   </tr>
   <?php
   if($_GET['tag']!="" && $_GET['search']!=""){
-    foreach ($pdo->query('select chain.name as chain_name, store.name as store_name, foods.name as food_name , prices.price,prices.store_id from prices join store on prices.store_id=store.id join chain on store.chain_id=chain.id join foods on prices.foods_id=foods.id order by prices.price ASC ') as $row) { ?>
+    foreach ($pdo->query('select chain.name as chain_name, store.name as store_name,item.name as item_name ,foods.species,foods.production_area, foods.amount ,prices.price,prices.store_id from prices join store on prices.store_id=store.id join chain on store.chain_id=chain.id join foods on prices.foods_id=foods.id join item on foods.item_id=item.id order by prices.price ASC ') as $row) { ?>
     <tr>
       <td><?php echo $row['chain_name'];?></td>
       <td><a href="./store.php?store_id=<?php echo $row['store_id'];?>"><?php echo $row['store_name'];?></a>店</td>
-      <td><a href="./price_list.php?tag=&search=<?php echo $row['food_name'];?>"><?php echo $row['food_name'];?></a></td>
-      <td><?php echo $row['price'];?></td>
+      <td><?php
+      echo $row['item_name'];?>(<?php if($row['species']!=''){echo $row['species'].'・';}echo $row['production_area'].'・'.$row['amount'];?>)</td>
+      <td><?php echo $row['price'];?>円</td>
     </tr>
   <?php }
   }
   else{
   if($_GET['tag']=="" || $_GET['tag']=="none"){
     if($_GET['search']==""){
-      foreach ($pdo->query('select chain.name as chain_name, store.name as store_name, foods.name as food_name , prices.price,prices.store_id from prices join store on prices.store_id=store.id join chain on store.chain_id=chain.id join foods on prices.foods_id=foods.id order by prices.price ASC ') as $row) { ?>
+      foreach ($pdo->query('select chain.name as chain_name, store.name as store_name,item.name as item_name ,foods.species,foods.production_area, foods.amount ,prices.price,prices.store_id from prices join store on prices.store_id=store.id join chain on store.chain_id=chain.id join foods on prices.foods_id=foods.id join item on foods.item_id=item.id order by prices.price ASC ') as $row) { ?>
       <tr>
         <td><?php echo $row['chain_name'];?></td>
         <td><a href="./store.php?store_id=<?php echo $row['store_id'];?>"><?php echo $row['store_name'];?></a>店</td>
-        <td><a href="./price_list.php?tag=&search=<?php echo $row['food_name'];?>"><?php echo $row['food_name'];?></a></td>
-        <td><?php echo $row['from_area'];?></td>
-        <td><?php echo $row['price'];?></td>
+        <td><?php
+        echo $row['item_name'];?>(<?php if($row['species']!=''){echo $row['species'].'・';}echo $row['production_area'].'・'.$row['amount'];?>)</td>
+        <td><?php echo $row['price'];?>円</td>
       </tr>
     <?php }
   }else{//変更
-    $list=$pdo->prepare("select chain.name as chain_name, store.name as store_name, foods.name as food_name , prices.price,prices.store_id from prices join store on prices.store_id=store.id join chain on store.chain_id=chain.id join foods on prices.foods_id=foods.id where foods.name LIKE ? or foods.keyword1 LIKE ? or foods.keyword2 LIKE ? order by prices.price ASC");
-    $list->execute(['%'.$_GET['search'].'%','%'.$_GET['search'].'%','%'.$_GET['search'].'%']);
+    $list=$pdo->prepare("select chain.name as chain_name, store.name as store_name,item.name as item_name ,foods.species,foods.production_area, foods.amount ,prices.price,prices.store_id from prices join store on prices.store_id=store.id join chain on store.chain_id=chain.id join foods on prices.foods_id=foods.id join item on foods.item_id=item.id where item.name LIKE ? or item.keyword1 LIKE ? or item.keyword2 LIKE ? or item.keyword3 LIKE ? or foods.keyword1 LIKE ? or foods.keyword2 LIKE ? order by prices.price ASC");
+    $list->execute(['%'.$_GET['search'].'%','%'.$_GET['search'].'%','%'.$_GET['search'].'%','%'.$_GET['search'].'%','%'.$_GET['search'].'%','%'.$_GET['search'].'%']);
     foreach ($list->fetchAll() as $row) {  ?>
     <tr>
       <td><?php echo $row['chain_name'];?></td>
       <td><a href="./store.php?store_id=<?php echo $row['store_id'];?>"><?php echo $row['store_name'];?></a>店</td>
-      <td><a href="./price_list.php?tag=&search=<?php echo $row['food_name'];?>"><?php echo $row['food_name'];?></a></td>
-      <td><?php echo $row['price'];?></td>
+      <td><?php
+      echo $row['item_name'];?>(<?php if($row['species']!=''){echo $row['species'].'・';}echo $row['production_area'].'・'.$row['amount'];?>)</td>
+      <td><?php echo $row['price'];?>円</td>
     </tr>
   <?php }
   }
 }
   else{
-    $list=$pdo->prepare("select chain.name as chain_name, store.name as store_name, foods.name as food_name , prices.price,prices.store_id from prices join store on prices.store_id=store.id join chain on store.chain_id=chain.id join foods on prices.foods_id=foods.id where foods.tag_id=? order by prices.price ASC");
+    $list=$pdo->prepare("select chain.name as chain_name, store.name as store_name,item.name as item_name ,foods.species,foods.production_area, foods.amount ,prices.price,prices.store_id from prices join store on prices.store_id=store.id join chain on store.chain_id=chain.id join foods on prices.foods_id=foods.id join item on foods.item_id=item.id where item.tag_id=? order by prices.price ASC");
     $list->execute([$_GET['tag']]);
     foreach ($list->fetchAll() as $row) { ?>
     <tr>
       <td><?php echo $row['chain_name'];?></td>
       <td><a href="./store.php?store_id=<?php echo $row['store_id'];?>"><?php echo $row['store_name'];?></a>店</td>
-      <td><a href="./price_list.php?tag=&search=<?php echo $row['food_name'];?>"><?php echo $row['food_name'];?></a></td>
-      <td><?php echo $row['price'];?></td>
+      <td><?php
+      echo $row['item_name'];?>(<?php if($row['species']!=''){echo $row['species'].'・';}echo $row['production_area'].'・'.$row['amount'];?>)</td>
+      <td><?php echo $row['price'];?>円</td>
     </tr>
   <?php }
   }
 }
   ?>
 </table>
-<object data="https://www.recipe-blog.jp/search/?type=recipe&keyword=<?php echo $_GET['search'] ;?>&source=web" width="1000" height="400"></object>
+<iframe src="https://www.recipe-blog.jp/search/?type=recipe&keyword=<?php echo $_GET['search'] ;?>&source=web" width="1000" height="400"></iframe>
 </body>
 </html>

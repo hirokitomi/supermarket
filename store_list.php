@@ -25,11 +25,11 @@
           if($_REQUEST['search']==""){
           echo 'タグ指定なし';
         }else{
-          echo '検索：'.$_REQUEST['search'];
+          //echo '検索：'.$_REQUEST['search'];
         }
       }
         else{
-          echo 'チェーン：'.$_REQUEST['chain'];
+          //echo 'チェーン：'.$_REQUEST['chain'];
         }
 
       //}
@@ -39,10 +39,10 @@
    <option value="">チェーンでソート</option>
    <?php
     foreach ($pdo->query('select * from chain') as $row) {?>
-   <option value="<?php echo $row['name'];?>"><?php echo $row['name'];?></option>
+   <option value="<?php echo $row['id'];?>" <?php if($_REQUEST['chain']===$row['id']) echo 'selected';?>><?php echo $row['name'];?></option>
  <?php } ?>
  </select>
-検索(店舗名と住所で検索できる)：<input type="text" name="search">
+検索(店舗名と住所で検索できる)：<input type="text" name="search" value="<?php echo $_REQUEST['search'];?>">
  <input type="submit" value="検索">
 </form>
 <table>
@@ -52,7 +52,9 @@
   </tr>
   <?php
   if($_REQUEST['chain']!="" && $_REQUEST['search']!=""){
-    foreach ($pdo->query('select chain.name as chain_name, store.name as store_name,store.id from store join chain on store.chain_id=chain.id order by store.upload_at DESC ') as $row) { ?>
+    $list=$pdo->prepare("select chain.name as chain_name, store.name as store_name,store.id from store join chain on store.chain_id=chain.id where chain.id=? and (store.name LIKE ? or store.address LIKE ?) order by store.upload_at DESC");
+    $list->execute([$_REQUEST['chain'],'%'.$_REQUEST['search'].'%','%'.$_REQUEST['search'].'%']);
+    foreach ($list->fetchAll() as $row) { ?>
     <tr>
       <td><?php echo $row['chain_name'];?></td>
       <td><a href="./store.php?store_id=<?php echo $row['id'];?>"><?php echo $row['store_name'];?></a>店</td>
@@ -80,7 +82,7 @@
   }
 }
   else{
-    $list=$pdo->prepare("select chain.name as chain_name, store.name as store_name,store.id from store join chain on store.chain_id=chain.id where chain.name=? order by store.upload_at DESC");
+    $list=$pdo->prepare("select chain.name as chain_name, store.name as store_name,store.id from store join chain on store.chain_id=chain.id where chain.id=? order by store.upload_at DESC");
     $list->execute([$_REQUEST['chain']]);
     foreach ($list->fetchAll() as $row) { ?>
     <tr>

@@ -15,11 +15,11 @@ if (isset($_REQUEST['command'])) {
   date_default_timezone_set('Asia/Tokyo');
         $timestampdate = date("Y-m-d");
         $timestamp=date("Y-m-d H:i:s");
-        $insertfoods=$pdo->prepare("insert into foods values(null,?,?,?,?,?,?,?,?,?)");
-        $confirmfoods=$pdo->prepare("select * from foods where name=? and brand=? and production_area=? and amount=?");
-        $confirmfoods->execute([$_REQUEST['food_name'],$_REQUEST['brand'],$_REQUEST['production_area'],$_REQUEST['amount']]);
+        $insertfoods=$pdo->prepare("insert into foods values(null,?,?,?,?,?,?,?)");
+        $confirmfoods=$pdo->prepare("select * from foods where item_id=? and species=? and production_area=? and amount=?");
+        $confirmfoods->execute([$_REQUEST['item'],$_REQUEST['species'],$_REQUEST['production_area'],$_REQUEST['amount']]);
         if(empty($confirmfoods->fetchAll())){
-        if($insertfoods->execute([$_REQUEST['food_name'],$_REQUEST['brand'],$_REQUEST['production_area'],$_REQUEST['amount'],$_REQUEST['keyword1'],$_REQUEST['keyword2'],$_REQUEST['keyword3'],$_REQUEST['tag'],$timestamp])){
+        if($insertfoods->execute([$_REQUEST['item'],$_REQUEST['species'],$_REQUEST['production_area'],$_REQUEST['amount'],$_REQUEST['keyword1'],$_REQUEST['keyword2'],$timestamp])){
           ?>
           <b>成功</b>
           <?php
@@ -37,46 +37,40 @@ if (isset($_REQUEST['command'])) {
  ?>
  <form action="./foods_regi.php" method="post">
    <input type="hidden" name="command" value="upload">
- 食品名：<input type="text" name="food_name">
- ブランド名：<input type="text" name="brand">
+   <select name="item">
+       <option>品目を選択</option>
+     <?php
+      foreach ($pdo->query('select * from item') as $row) {?>
+     <option value="<?php echo $row['id'];?>"><?php echo $row['name'];?></option>
+   <?php } ?>
+  </select><br>
+ 種：<input type="text" name="species">
  産地：<input type="text" name="production_area">
 量(肉の場合はgをつけた重さ。いちごの場合は小中大パック)：<input type="text" name="amount">
- <select name="tag">
-     <option>種類を選択</option>
-   <?php
-    foreach ($pdo->query('select * from tag') as $row) {?>
-   <option value="<?php echo $row['id'];?>"><?php echo $row['name'];?></option>
- <?php } ?>
-</select><br>
 キーワード1：<input type="text" name="keyword1">
 キーワード2：<input type="text" name="keyword2">
-キーワード3：<input type="text" name="keyword3">
  <input type="submit" value="登録">
 </form>
 <table>
   <tr>
     <th>id</th>
-    <th>食品名</th>
-    <th>ブランド</th>
+    <th>品目</th>
+    <th>種</th>
     <th>産地</th>
     <th>グラム</th>
-    <th>種類</th>
     <th>キーワード1</th>
     <th>キーワード2</th>
-    <th>キーワード3</th>
   </tr>
   <?php
-  foreach ($pdo->query('select foods.id as food_id,foods.name as food_name,brand,production_area,foods.amount,tag.name as tag_name,keyword1,keyword2,keyword3 from foods join tag on foods.tag_id=tag.id') as $row) { ?>
+  foreach ($pdo->query('select foods.id as food_id,item.name as item_name,species,production_area,foods.amount,foods.keyword1,foods.keyword2 from foods join item on foods.item_id=item.id') as $row) { ?>
   <tr>
     <td><?php echo $row['food_id'];?></td>
-    <td><?php echo $row['food_name'];?></td>
-    <td><?php echo $row['brand'];?></td>
+    <td><?php echo $row['item_name'];?></td>
+    <td><?php echo $row['species'];?></td>
     <td><?php echo $row['production_area'];?></td>
     <td><?php echo $row['amount'];?></td>
-    <td><?php echo $row['tag_name'];?></td>
     <td><?php echo $row['keyword1'];?></td>
     <td><?php echo $row['keyword2'];?></td>
-    <td><?php echo $row['keyword3'];?></td>
   </tr>
 <?php } ?>
 </table>
